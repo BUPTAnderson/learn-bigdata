@@ -1,0 +1,54 @@
+创建topic：
+> bin/kafka-topics.sh --create --zookeeper localhost:2181 --replication-factor 1 --partitions 1 --topic test
+
+查看有哪些topic：
+> bin/kafka-topics.sh --list --zookeeper localhost:2181
+
+描述topic中分区，同步副本情况
+> bin/kafka-topics.sh --describe --zookeeper localhost:2181 --topic my-replicated-topic
+Topic:my-replicated-topic	PartitionCount:1	ReplicationFactor:3	Configs:
+	Topic: my-replicated-topic	Partition: 0	Leader: 1	Replicas: 1,2,0	Isr: 1,2,0
+
+查看topic的offset
+> /bin/kafka-run-class.sh kafka.tools.GetOffsetShell --topic 4230D69D760544318FEB8F638E09B525 --broker-list localhost:9092 --time -1
+4230D69D760544318FEB8F638E09B525:2:10
+4230D69D760544318FEB8F638E09B525:1:145
+4230D69D760544318FEB8F638E09B525:0:7
+
+
+查看有哪些消费组
+> /bin/kafka-consumer-groups.sh --bootstrap-server localhost:9092 --new-consumer --list
+或者：
+> bin/kafka-consumer-groups.sh --bootstrap-server localhost:9092 --command-config config/server.properties --list
+
+group-id-20170426190455072
+group-id-20170419145848174
+group-id-20170416025630410
+
+查看消费组的消费情况
+> bin/kafka-consumer-groups.sh --bootstrap-server localhost:9092 --command-config config/server.properties --describe --group group-id-20170426190455072
+GROUP                          TOPIC                          PARTITION  CURRENT-OFFSET  LOG-END-OFFSET  LAG             OWNER
+group-id-20170426190455072     EE7A8EDE06CB4FD29B073F15A475EB43 0          unknown         0               unknown         consumer-1_/xxx.xxx.xxx.103
+group-id-20170426190455072     EE7A8EDE06CB4FD29B073F15A475EB43 1          unknown         0               unknown         consumer-1_/xxx.xxx.xxx.103
+group-id-20170426190455072     EE7A8EDE06CB4FD29B073F15A475EB43 2          unknown         0               unknown         consumer-1_/xxx.xxx.xxx.103
+
+// 查看topic的offset
+> /bin/kafka-run-class.sh kafka.tools.GetOffsetShell --topic kyl-test  --broker-list localhost:9092 --time -1
+kyl-test:2:0
+kyl-test:1:0
+kyl-test:0:0
+
+发送message：
+> bin/kafka-console-producer.sh --broker-list localhost:9092 --topic test
+This is a message
+This is another message
+
+消费mesage：
+> bin/kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic test --from-beginning
+This is a message
+This is another message
+
+删除topic：
+> bin/kafka-topics.sh --zookeeper zk_host:port/chroot --delete --topic my_topic_name
+删除数据库默认是disable，如果想让该命令生效，需要在配置文件中做如下配置：
+delete.topic.enable=true
