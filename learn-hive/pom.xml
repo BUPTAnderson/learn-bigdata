@@ -25,6 +25,16 @@
             <version>4.4</version>
             <scope>test</scope>
         </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.apache.hive</groupId>-->
+            <!--<artifactId>hive-metastore-jd</artifactId>-->
+            <!--<version>2.1.1-20170622.081252-1</version>-->
+        <!--</dependency>-->
+        <!--<dependency>-->
+            <!--<groupId>org.apache.hive</groupId>-->
+            <!--<artifactId>hive-service</artifactId>-->
+            <!--<version>2.1.1</version>-->
+        <!--</dependency>-->
         <dependency>
             <groupId>org.apache.hive</groupId>
             <artifactId>hive-metastore</artifactId>
@@ -34,6 +44,31 @@
             <groupId>org.apache.hive</groupId>
             <artifactId>hive-service</artifactId>
             <version>2.1.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hive</groupId>
+            <artifactId>hive-exec</artifactId>
+            <version>2.1.1</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-cli</groupId>
+            <artifactId>commons-cli</artifactId>
+            <version>1.2</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hive</groupId>
+            <artifactId>hive-cli</artifactId>
+            <version>2.1.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hive</groupId>
+            <artifactId>hive-exec</artifactId>
+            <version>2.1.1</version>
+        </dependency>
+        <dependency>
+            <groupId>jline</groupId>
+            <artifactId>jline</artifactId>
+            <version>2.12</version>
         </dependency>
     </dependencies>
 </project>

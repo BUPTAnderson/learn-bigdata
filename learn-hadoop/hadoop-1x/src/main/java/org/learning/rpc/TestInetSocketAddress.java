@@ -1,4 +1,4 @@
-package org.learning.rpc.myrpc;
+package org.learning.rpc;
 
 import org.apache.hadoop.security.SecurityUtil;
 
