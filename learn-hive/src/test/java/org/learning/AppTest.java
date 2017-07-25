@@ -33,6 +33,13 @@ public class AppTest
      */
     public void testApp()
     {
-        assertTrue(true);
+        String str = "hdfs://ns1/user/hive2/9590c290c6cc6a0a46e3da7a591aed64/default/ysm_test.db";
+        String[] strs = str.split("/");
+        String[] dbs = strs[strs.length - 1].split("\\.");
+        System.out.println(strs.length);
+        System.out.println(dbs.length);
+        String db = strs[strs.length - 2] + "/" + dbs[0];
+        System.out.println(strs[strs.length - 1].contains("."));
+        System.out.println(db);
     }
 }
