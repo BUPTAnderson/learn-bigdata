@@ -163,6 +163,14 @@ public class TestMetaStoreClient
         closeClient(client);
     }
 
+    public static void dropDB(Database database)
+            throws TException, SQLException
+    {
+        HiveMetaStore.Client client = GetThriftConnectedClient();
+        client.drop_db(database, true, true);
+        closeClient(client);
+    }
+
     public static void main(String[] args)
             throws TException, SQLException
     {
@@ -217,6 +225,12 @@ public class TestMetaStoreClient
 //        table.setOwner("datajingdo_m");
 //        table.setSd(StorageDescriptor)
 //        createTable();
-        System.out.println(((int) (System.currentTimeMillis() / 1000)));
+//        System.out.println(((int) (System.currentTimeMillis() / 1000)));
+        Database database = new Database();
+        database.setName("ysm_test");
+        database.setInstanceName("yaf");
+        database.setInstanceOwnerName("datajingdo_m");
+        database.setInstanceOwnerType(PrincipalType.USER);
+        dropDB(database);
     }
 }
