@@ -2,7 +2,6 @@ package org.learning;
 
 import org.apache.hadoop.hive.metastore.HiveMetaStore;
 import org.apache.hadoop.hive.metastore.api.Database;
-import org.apache.hadoop.hive.metastore.api.Instance;
 import org.apache.hadoop.hive.metastore.api.PrincipalType;
 import org.apache.hadoop.hive.metastore.api.PrivilegeGrantInfo;
 import org.apache.hadoop.hive.metastore.api.Table;
@@ -14,7 +13,6 @@ import org.apache.thrift.transport.TTransport;
 import org.apache.thrift.transport.TTransportException;
 
 import java.sql.SQLException;
-import java.util.List;
 
 /**
  * Created by anderson on 17-6-19.
@@ -49,70 +47,64 @@ public class TestMetaStoreClient
     public static void createInstance(String instanceName, String desc, String ownerName, PrincipalType principalType)
             throws TException, SQLException
     {
-        HiveMetaStore.Client client = GetThriftConnectedClient();
-        Instance instance = new Instance();
-        instance.setName(instanceName);
-        instance.setDescription(desc);
-        instance.setOwnerName(ownerName);
-        instance.setOwnerType(principalType);
-        client.create_instance(instance);
-        closeClient(client);
+//        HiveMetaStore.Client client = GetThriftConnectedClient();
+//        Instance instance = new Instance();
+//        instance.setName(instanceName);
+//        instance.setDescription(desc);
+//        instance.setOwnerName(ownerName);
+//        instance.setOwnerType(principalType);
+//        client.create_instance(instance);
+//        closeClient(client);
     }
 
     public static void getInstance(String instanceName, String ownerName, PrincipalType ownerType)
             throws SQLException, TException
     {
-        HiveMetaStore.Client client = GetThriftConnectedClient();
-        Instance instance = client.get_instance(instanceName, ownerName, ownerType);
-        System.out.println(instance);
-        closeClient(client);
+//        HiveMetaStore.Client client = GetThriftConnectedClient();
+//        Instance instance = client.get_instance(instanceName, ownerName, ownerType);
+//        System.out.println(instance);
+//        closeClient(client);
     }
 
     public static void getInstanceList(String principalName, PrincipalType principalType)
             throws SQLException, TException
     {
-        HiveMetaStore.Client client = GetThriftConnectedClient();
-        List<Instance> list = client.get_instance_list(principalName, principalType);
-        System.out.println(list.size());
-        for (Instance instance : list) {
-            System.out.println(instance);
-        }
-        closeClient(client);
+//        HiveMetaStore.Client client = GetThriftConnectedClient();
+//        List<Instance> list = client.get_instance_list(principalName, principalType);
+//        System.out.println(list.size());
+//        for (Instance instance : list) {
+//            System.out.println(instance);
+//        }
+//        closeClient(client);
     }
 
     public static void grantInstancePrivs(String instanceName, String instanceOwnerName, PrincipalType instanceOwnerType,
             String principalName, PrincipalType principalType, PrivilegeGrantInfo info)
             throws SQLException, TException
     {
-        HiveMetaStore.Client client = GetThriftConnectedClient();
-//        PrivilegeGrantInfo info = new PrivilegeGrantInfo();
-//        info.setGrantOption(false);
-//        info.setGrantorType(PrincipalType.USER);
-//        info.setGrantor("datajingdo_m");
-//        info.setPrivilege("select");
-        Instance instance = new Instance();
-        instance.setName(instanceName);
-        instance.setOwnerName(instanceOwnerName);
-        instance.setOwnerType(instanceOwnerType);
-//        instance.setDescription("instance for test");
-        boolean b = client.grant_instance_privileges(instance, principalName, principalType, info);
-        System.out.println(b);
-        closeClient(client);
+//        HiveMetaStore.Client client = GetThriftConnectedClient();
+//        Instance instance = new Instance();
+//        instance.setName(instanceName);
+//        instance.setOwnerName(instanceOwnerName);
+//        instance.setOwnerType(instanceOwnerType);
+//        boolean b = client.grant_instance_privileges(instance, principalName, principalType, info);
+//        System.out.println(b);
+//        closeClient(client);
     }
 
-    public static void revokeInstancePrivs(String instanceName, String instanceOwnerName, PrincipalType instanceOwnerType,
-            String principalName, PrincipalType principalType, PrivilegeGrantInfo info) throws SQLException, TException
-    {
-        HiveMetaStore.Client client = GetThriftConnectedClient();
-        Instance instance = new Instance();
-        instance.setName(instanceName);
-        instance.setOwnerName(instanceOwnerName);
-        instance.setOwnerType(instanceOwnerType);
-        instance.setDescription("");
-        boolean b = client.revoke_instance_privileges(instance, principalName, principalType, info);
-        System.out.println(b);
-        closeClient(client);
-    }
+//    public static void revokeInstancePrivs(String instanceName, String instanceOwnerName, PrincipalType instanceOwnerType,
+//            String principalName, PrincipalType principalType, PrivilegeGrantInfo info) throws SQLException, TException
+//    {
+//        HiveMetaStore.Client client = GetThriftConnectedClient();
+//        Instance instance = new Instance();
+//        instance.setName(instanceName);
+//        instance.setOwnerName(instanceOwnerName);
+//        instance.setOwnerType(instanceOwnerType);
+//        instance.setDescription("");
+//        boolean b = client.revoke_instance_privileges(instance, principalName, principalType, info);
+//        System.out.println(b);
+//        closeClient(client);
+//    }
 
     public static void createDatabase(Database db)
             throws SQLException, TException
@@ -122,38 +114,38 @@ public class TestMetaStoreClient
         closeClient(client);
     }
 
-    public static void getDatabase(Instance instance, String dbName)
-            throws SQLException, TException
-    {
-        HiveMetaStore.Client client = GetThriftConnectedClient();
-        Database database = client.get_db(instance, dbName);
-        System.out.println(database);
-        closeClient(client);
-    }
+//    public static void getDatabase(Instance instance, String dbName)
+//            throws SQLException, TException
+//    {
+//        HiveMetaStore.Client client = GetThriftConnectedClient();
+//        Database database = client.get_db(instance, dbName);
+//        System.out.println(database);
+//        closeClient(client);
+//    }
 
-    public static void getDatabaseList(Instance instance, String principalName, PrincipalType principalType)
-            throws SQLException, TException
-    {
-        HiveMetaStore.Client client = GetThriftConnectedClient();
-        List<String> list = client.get_database_list(instance, principalName, principalType);
+//    public static void getDatabaseList(Instance instance, String principalName, PrincipalType principalType)
+//            throws SQLException, TException
+//    {
+//        HiveMetaStore.Client client = GetThriftConnectedClient();
+//        List<String> list = client.get_database_list(instance, principalName, principalType);
+//
+//        for (String dbName : list) {
+//            System.out.println(dbName);
+//        }
+//        closeClient(client);
+//    }
 
-        for (String dbName : list) {
-            System.out.println(dbName);
-        }
-        closeClient(client);
-    }
-
-    public static void getDatabaseEntityList(Instance instance, String principalName, PrincipalType principalType)
-            throws SQLException, TException
-    {
-        HiveMetaStore.Client client = GetThriftConnectedClient();
-        List<Database> list = client.get_database_entity_list(instance, principalName, principalType);
-
-        for (Database database : list) {
-            System.out.println(database);
-        }
-        closeClient(client);
-    }
+//    public static void getDatabaseEntityList(Instance instance, String principalName, PrincipalType principalType)
+//            throws SQLException, TException
+//    {
+//        HiveMetaStore.Client client = GetThriftConnectedClient();
+//        List<Database> list = client.get_database_entity_list(instance, principalName, principalType);
+//
+//        for (Database database : list) {
+//            System.out.println(database);
+//        }
+//        closeClient(client);
+//    }
 
     public static void createTable(Table table)
             throws SQLException, TException
@@ -167,17 +159,17 @@ public class TestMetaStoreClient
             throws TException, SQLException
     {
         HiveMetaStore.Client client = GetThriftConnectedClient();
-        client.drop_db(database, true, true);
+//        client.drop_db(database, true, true);
         closeClient(client);
     }
 
     public static void main(String[] args)
             throws TException, SQLException
     {
-        Instance instance = new Instance();
-        instance.setName("default");
-        instance.setOwnerName("datajingdo_m");
-        instance.setOwnerType(PrincipalType.USER);
+//        Instance instance = new Instance();
+//        instance.setName("default");
+//        instance.setOwnerName("datajingdo_m");
+//        instance.setOwnerType(PrincipalType.USER);
         String principalName = "datajingdo_m";
         PrincipalType principalType = PrincipalType.USER;
 //        getDatabaseEntityList(instance, principalName, principalType);
@@ -228,9 +220,9 @@ public class TestMetaStoreClient
 //        System.out.println(((int) (System.currentTimeMillis() / 1000)));
         Database database = new Database();
         database.setName("ysm_test");
-        database.setInstanceName("yaf");
-        database.setInstanceOwnerName("datajingdo_m");
-        database.setInstanceOwnerType(PrincipalType.USER);
+//        database.setInstanceName("yaf");
+//        database.setInstanceOwnerName("datajingdo_m");
+//        database.setInstanceOwnerType(PrincipalType.USER);
         dropDB(database);
     }
 }
