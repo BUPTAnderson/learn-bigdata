@@ -66,11 +66,12 @@ public class TestDFS
 //        command = "drop table abc";
         command = "select a.b from test.abc a limit 10";
 //        command = "select a from abc limit 10";
-        command = "select id from (select id,devid,job_time from tb_in_base) a";
+//        command = "select id from (select id,devid,job_time from tb_in_base) a";
 //        command = "select id from (select id,devid from tb_in_base) a";
 //        command = "create view test_view (id, name_length) as  select id, length(name) from test";
 //        command = "select  dt.d_year, item.i_brand_id brand_id, item.i_brand brand, sum(ss_ext_sales_price) sum_agg from  date_dim dt, store_sales, item where dt.d_date_sk = store_sales.ss_sold_date_sk and store_sales.ss_item_sk = item.i_item_sk and item.i_manufact_id = 436 and dt.d_moy=12 group by dt.d_year, item.i_brand, item.i_brand_id order by dt.d_year, sum_agg desc, brand_id limit 100";
 //        command = "select  dt.d_year, item.i_category_id, sum(ss_ext_sales_price) as s from date_dim dt, item where dt.dt_item_sk = item.i_item_sk group by dt.d_year, item.i_category order by s desc, dt.d_year, item.i_category_id limit 100";
+//        command = "select * from default.partition_test limit 10";
         HiveConf conf = new HiveConf(SessionState.class);
         conf.set("_hive.hdfs.session.path", "/tmp");
         conf.set("hive.metastore.uris", "thrift://bds-test-003:9083");
@@ -86,9 +87,9 @@ public class TestDFS
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
-//        System.out.println(ss.getHDFSSessionPath(conf));
+        System.out.println(ss.getHDFSSessionPath(conf));
         SessionState.setCurrentSessionState(ss);
-//        SessionState.start(ss);
+        SessionState.start(ss);
         Context ctx = new Context(conf);
         ctx.setTryCount(0);
         ctx.setCmd(command);

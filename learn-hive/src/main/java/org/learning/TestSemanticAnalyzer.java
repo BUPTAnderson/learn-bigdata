@@ -6,7 +6,6 @@ import org.apache.hadoop.hive.conf.HiveConf;
 import org.apache.hadoop.hive.metastore.api.MetaException;
 import org.apache.hadoop.hive.ql.Context;
 import org.apache.hadoop.hive.ql.QueryState;
-import org.apache.hadoop.hive.ql.metadata.Hive;
 import org.apache.hadoop.hive.ql.metadata.HiveException;
 import org.apache.hadoop.hive.ql.parse.ASTNode;
 import org.apache.hadoop.hive.ql.parse.BaseSemanticAnalyzer;
@@ -47,7 +46,7 @@ public class TestSemanticAnalyzer
 
 //        System.out.println(ss.getHDFSSessionPath(conf));
         try {
-            Hive.get(conf).getMSC().getAllFunctions();
+//            Hive.get(conf).getMSC().getAllFunctions();
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }

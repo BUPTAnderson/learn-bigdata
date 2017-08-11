@@ -16,6 +16,7 @@ public class TestConf2
         hiveConf.set("aaa", "123");
         System.out.println(hiveConf.get("aaa"));
         HiveConf hiveConf1 = new HiveConf(hiveConf);
+        System.out.println(hiveConf == hiveConf1);
         hiveConf1.set("aaa", "222");
         System.out.println(hiveConf.get("aaa"));
         System.out.println(hiveConf1.get("aaa"));

@@ -168,8 +168,8 @@ public class TestMetaStoreClient
     {
 //        Instance instance = new Instance();
 //        instance.setName("default");
-//        instance.setOwnerName("datajingdo_m");
-//        instance.setOwnerType(PrincipalType.USER);
+//        instance.setOwnerName("public");
+//        instance.setOwnerType(PrincipalType.ROLE);
         String principalName = "datajingdo_m";
         PrincipalType principalType = PrincipalType.USER;
 //        getDatabaseEntityList(instance, principalName, principalType);
@@ -202,7 +202,7 @@ public class TestMetaStoreClient
 //        db.setInstanceOwnerType(PrincipalType.USER);
 //        createDatabase(db);
 
-//        getDatabase(instance, "ysm_test");
+//        getDatabase(instance, "default");
 
         //------------------ get database list -------------------
 //        getDatabaseList(instance, principalName, PrincipalType.USER);
@@ -218,11 +218,11 @@ public class TestMetaStoreClient
 //        table.setSd(StorageDescriptor)
 //        createTable();
 //        System.out.println(((int) (System.currentTimeMillis() / 1000)));
-        Database database = new Database();
-        database.setName("ysm_test");
+//        Database database = new Database();
+//        database.setName("ysm_test");
 //        database.setInstanceName("yaf");
 //        database.setInstanceOwnerName("datajingdo_m");
 //        database.setInstanceOwnerType(PrincipalType.USER);
-        dropDB(database);
+//        dropDB(database);
     }
 }
