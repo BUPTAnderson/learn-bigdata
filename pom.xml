@@ -10,6 +10,7 @@
         <module>learn-hive</module>
         <module>learn-kafka</module>
         <module>learn-es</module>
+        <module>learn-flume</module>
     </modules>
     <packaging>pom</packaging>
 

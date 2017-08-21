@@ -1,0 +1,49 @@
+配置文件格式:
+# list the sources, sinks and channels for the agent
+<Agent>.sources = <Source>
+<Agent>.sinks = <Sink>
+<Agent>.channels = <Channel1> <Channel2>
+
+# set channel for source
+<Agent>.sources.<Source>.channels = <Channel1> <Channel2> ...
+
+# set channel for sink
+<Agent>.sinks.<Sink>.channel = <Channel1>
+
+#Configure individual components
+# properties for sources
+<Agent>.sources.<Source>.<someProperty> = <someValue>
+
+# properties for channels
+<Agent>.channel.<Channel>.<someProperty> = <someValue>
+
+# properties for sinks
+<Agent>.sources.<Sink>.<someProperty> = <someValue>
+
+For example:
+# list the sources, sinks and channels for the agent
+agent_foo.sources = avro-appserver-src-1
+agent_foo.sinks = hdfs-sink-1
+agent_foo.channels = mem-channel-1
+
+# set channel for source
+agent_foo.sources.avro-appserver-src-1.channels = mem-channel-1
+
+# set channel for sink
+agent_foo.sinks.hdfs-sink-1.channel = mem-channel-1
+
+# set channel for sources, sinks
+
+# properties of avro-AppSrv-source
+agent_foo.sources.avro-AppSrv-source.type = avro
+agent_foo.sources.avro-AppSrv-source.bind = localhost
+agent_foo.sources.avro-AppSrv-source.port = 10000
+
+# properties of mem-channel-1
+agent_foo.channels.mem-channel-1.type = memory
+agent_foo.channels.mem-channel-1.capacity = 1000
+agent_foo.channels.mem-channel-1.transactionCapacity = 100
+
+# properties of hdfs-Cluster1-sink
+agent_foo.sinks.hdfs-Cluster1-sink.type = hdfs
+agent_foo.sinks.hdfs-Cluster1-sink.hdfs.path = hdfs://namenode/flume/webdata

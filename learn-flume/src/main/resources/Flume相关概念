@@ -1,0 +1,120 @@
+Flume OG存在的问题:
+Flume OG代码工程臃肿(agent, collector, master, 如果保证高可用还需要zookeeper集群)
+核心组件设计不合理(逻辑节点, 物理节点...)
+核心配置不标准
+尤其是在Flume OG的最后一个发行版本0.94.0中, 日志传输不稳定的现象尤为严重
+
+Flume NG特点:
+NG只有一种角色的节点:代理节点(agent)
+没有collector, master节点. 这是核心组件最核心的变化
+去除了physical nodes, logical nodes的概念和相关内容
+agent节点的组成也发生了变化, 脱离了zookeeper
+
+Flume NG架构的优势:
+NG在核心组件上进行了大规模的调整
+删减节点角色, 脱离zookeeper
+用户也不再纠结于OG中的模糊概念
+有利于Flume和其它技术, hadoop周边组件的整合
+在功能上更加强大, 可扩展性更高
+
+Flume NG核心概念:
+Event: flume中传输的基本单位, 可称为事件
+Client: 将数据转换成Event, 可选, 没有的话, 由Source来将数据转换成Event
+Agent:
+    - Source
+    - Channel
+    - Sink
+    - 其它组件: Interceptor, Channel Selector, Sink Processor
+
+Event
+Event是flume数据传输的基本单元
+Flume以事件的形式将数据从源头传送到最终的目的地
+Event由可选的header和载有数据的一个byte array构成
+  载有的数据对flume是不透明的
+  Header是容纳了key-value字符串对的无序集合, key在集合内是唯一的
+  Header可以在上下文路由中使用扩展
+
+  public interface Event {
+    public Map<String, String> getHeaders();
+    public void setHeaders(Map<String, String> headers);
+    public byte[] getBody();
+    public void setBody(byte[] body);
+  }
+
+Client
+client是一个将原始log包装成events并且发送它们到一个或多个agent的实体
+目的是从数据源系统中解耦Flume
+在flume的拓扑结构中不是必须的
+Client实例
+  -Flume log4j Appender
+  -可以使用Client SDK(org.apache.flume.api)定制特定的client
+
+Agent
+一个agent包含Source, Channel, Sink和其它组件
+它利用这些组件将events从一个节点传输到另一个节点或最终目的地
+agent是flume流的基础部分
+flume为这些组件提供了配置, 生命周期管理, 监控支持
+
+Agent之Source
+Source负责接收Event或通过特殊机制产生Event, 并将events批量的放到一个或多个Channel.
+包含event驱动和轮询2中类型
+不同类型的Source:
+  -与系统集成的Source: Syslog, Netcat
+  -自动生成事件的Source: Exec
+  -用于Agent和Agent之间通信的IPC Source: Avro, Thrift
+Source必须至少和一个channel关联
+
+Agent之Channel与Sink:
+                Event1
+                  ^  \
+                  |   \
+    Source      Event2 \
+        \       Event3  \ Take Commit
+         \         .     \
+          \        .      \
+           \       .     Sink
+Put Commit  \      .
+             \     .
+              \    .
+               \   .
+                 Event
+                [Channel]
+
+Agent之Channel
+channel位于Source和Sink之间, 用于缓存进来的event
+当Sink成功的将event发送到下一跳的channel或最终目的地, event从channel移除
+不同的Channel提供的持久化水平也是不一样的:
+  -Memory Channel: volatile
+  -File Channel:基于WAL(预写日志Write-Ahead Logging)实现
+  -JDBC Channel:基于嵌入式Database实现
+Channel支持事务, 提供较弱的顺序保证
+可以和任何数量的Source和sink工作
+
+Agent之Sink
+Sink负责将event传输到下一跳或最终目的地, 成功完成后将event从channel移除
+不同类型的Sink:
+  -存储event到最终目的地的终端Sink. 比如:HDFS, HBase
+  -自动消耗的Sink. 比如: Null Sink
+  -用于Agent间通信的IPC sink: Avro
+必须作用于一个确切的channel
+
+其它几个组件
+Interceptor
+  -作用于Source, 按照预设的顺序在必要的地方装饰和过滤events
+Channel Selector
+  -允许Source基于预设的标准, 从所有Channel中, 选择一个或多个Channel
+Sink Processor
+  -多个Sink可以构成一个Sink Group
+  -Sink Processor可以通过组中所有Sink实现负载均衡
+  -也可以在一个Sink失败时转移到另一个
+  -缺省已有实现:
+    Default
+    Failover(基于优先级)
+    Load balance(ROUND ROBIN/RANDOM, +BACKOFF)
+
+数据流模型
+Flume以agent为最小的独立运行单位
+一个agent就是一个JVM. 单agent有source, sink, channel三大组件构成
+
+多级数据流
+Flume支持用户建立多级流, 多个agent可以协同工作, 并且支持Fan-in(扇入), Fan-out(扇出), Contextual Routing(上下文路由), Backup Routes(多路复用)
