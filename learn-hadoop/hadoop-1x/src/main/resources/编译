@@ -1,0 +1,31 @@
+cd /Users/anderson/IdeaProjects/hadoop-1.2.1
+(src目录下存放的是1.2.1版本的源代码)
+hadoop-1.2.1采用的是ant+ivy的方式来管理代码
+执行： ant
+报错：object[]无法转换为K[]的问题
+解决办法：打开hadoop目录下的InputSampler.java文件，路径如下：
+     hadoop-1.2.1\src\mapred\org\apache\hadoop\mapreduce\lib\partition\InputSampler.java
+
+     大概319行找到如下内容：
+         K[] samples = sampler.getSample(inf, job);
+
+     将其修改为：
+         K[] samples = (K[]) sampler.getSample(inf, job);
+保存好再次执行： ant
+又报错： ant warning: "includeantruntime" was not set
+在终端中执行：export ANT_OPTS=-Dbuild.sysclasspath=ignore
+再次执行： ant
+结果：BUILD SUCCESSFUL
+编译产生的文件在 hadoop-1.2.1/build目录下
+
+
+编译native hadoop：
+cd /Users/anderson/IdeaProjects/hadoop-1.2.1
+ant compile-native
+报错：
+BUILD FAILED
+/Users/anderson/IdeaProjects/hadoop-1.2.1/build.xml:627: The following error occurred while executing this line:
+/Users/anderson/IdeaProjects/hadoop-1.2.1/build.xml:702: exec returned: 2
+安装zlib
+
+cd build/native/
