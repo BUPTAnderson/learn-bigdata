@@ -26,7 +26,6 @@ public class BaseTest
 
     public void print(SearchHits hits)
     {
-
         if (null != hits) {
             System.out.println("--------------- " + hits.getTotalHits());
             for (SearchHit hit : hits) {
