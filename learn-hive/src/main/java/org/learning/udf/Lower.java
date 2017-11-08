@@ -4,11 +4,15 @@ import org.apache.hadoop.hive.ql.exec.UDF;
 import org.apache.hadoop.io.Text;
 
 /**
+ * 编译时指定依赖的jar包
+ * javac -classpath /home/hadoop/redistest/jedis-2.8.2.jar RedisJava.java
+ * 执行时指定jar所在目录 java -Djava.ext.dirs=/home/hadoop/redistest -cp . RedisJava
+
  * Created by anderson on 17-10-13.
  * 编写文件:
  * vim Lower.java
  * 编译:
- * jvac -classpath /export/App/apache-hive-1.2.1-bin/lib/hive-exec-1.2.1.jar:/export/App/hadoop-2.6.1/share/hadoop/common/hadoop-common-2.6.1.jar Lower.java
+ * javac -classpath /export/App/apache-hive-1.2.1-bin/lib/hive-exec-1.2.1.jar:/export/App/hadoop-2.6.1/share/hadoop/common/hadoop-common-2.6.1.jar Lower.java
  * 编译成功后会看到 Lower.class文件
  * 创建jar包: jar -cf lower.jar Lower.class
  * 创建成功后会看到 lower.jar文件
