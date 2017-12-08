@@ -1,0 +1,11 @@
+链接: https://my.oschina.net/leejun2005/blog/288136
+OOM 问题：
+flume 报错：
+java.lang.OutOfMemoryError: GC overhead limit exceeded
+或者：
+java.lang.OutOfMemoryError: Java heap space
+Exception in thread "SinkRunner-PollingRunner-DefaultSinkProcessor" java.lang.OutOfMemoryError: Java heap space
+Flume 启动时的最大堆内存大小默认是 20M，线上环境很容易 OOM，因此需要你在 flume-env.sh 中添加 JVM 启动参数:
+
+JAVA_OPTS="-Xms8192m -Xmx8192m -Xss256k -Xmn2g -XX:+UseParNewGC -XX:+UseConcMarkSweepGC -XX:-UseGCOverheadLimit"
+然后在启动 agent 的时候一定要带上 -c conf 选项，否则 flume-env.sh 里配置的环境变量不会被加载生效

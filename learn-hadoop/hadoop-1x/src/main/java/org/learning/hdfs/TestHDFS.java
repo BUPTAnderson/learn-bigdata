@@ -94,10 +94,11 @@ public class TestHDFS
     public void testListFiles() throws IOException {
         Configuration conf = new Configuration();
         FileSystem fs = FileSystem.get(URI.create(hdfsUrl), conf);
-        Path path = new Path("/test");
+//        Path path = new Path("/test");
+        Path path = new Path("/examples/iptables_new/20171201115005");
         FileStatus[] files = fs.listStatus(path);
         for (FileStatus file : files) {
-            System.out.println(file.getPath().toString());
+            System.out.println(file.getPath().toString() + "," + file.getPath().getName());
         }
     }
 
@@ -124,7 +125,7 @@ public class TestHDFS
 //        testHDFS.testRenameFile();
 //        testHDFS.testUploadLocalFile1();
 //        testHDFS.testUploadLocalFile2();
-//        testHDFS.testListFiles();
-        testHDFS.testGetBlockInfo();
+        testHDFS.testListFiles();
+//        testHDFS.testGetBlockInfo();
     }
 }
