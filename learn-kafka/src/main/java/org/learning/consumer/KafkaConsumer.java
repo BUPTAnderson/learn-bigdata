@@ -49,7 +49,7 @@ public class KafkaConsumer
         StringDecoder valueDecoder = new StringDecoder(new VerifiableProperties());
 
         Map<String, List<KafkaStream<String, String>>> consumerMap =
-                consumer.createMessageStreams(topicCountMap,keyDecoder,valueDecoder);
+                consumer.createMessageStreams(topicCountMap, keyDecoder, valueDecoder);
         KafkaStream<String, String> stream = consumerMap.get("kyl-test").get(0);
         ConsumerIterator<String, String> it = stream.iterator();
         while (it.hasNext()) {

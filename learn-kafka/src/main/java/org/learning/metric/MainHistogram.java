@@ -32,7 +32,7 @@ public class MainHistogram
     public static void main(String[] args)
             throws InterruptedException
     {
-        ConsoleReporter.enable(1, TimeUnit.SECONDS);;
+        ConsoleReporter.enable(1, TimeUnit.SECONDS);
         int i = 0;
         while (true) {
             // 更新Histogram度量数据

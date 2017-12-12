@@ -22,6 +22,6 @@ public class PersonAgent
         ObjectName personName = new ObjectName("jmxBean:name=xiaoming");
 //        server.registerMBean(new Person("xiaoming", 27), personName);
         server.registerMBean(new PersonDynamic(new Person("xiaoming", 27)), personName);
-        Thread.sleep(60 * 60 *1000);
+        Thread.sleep(60 * 60 * 1000);
     }
 }
