@@ -27,7 +27,7 @@ public class SimpleProducer
 //        for (int i = 0; i < 100; i++)
         int i = 0;
         while (i < 50000) {
-            producer.send(new ProducerRecord<String, String>("kyl-test", null, Integer.toString(i)));
+            producer.send(new ProducerRecord<String, String>("test", null, Integer.toString(i)));
             i++;
         }
 

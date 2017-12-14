@@ -1,0 +1,21 @@
+{
+  "servers" : [ {
+    "host" : "192.168.177.80",
+    "port" : "9999",
+    "queries" : [ {
+      "obj" : "kafka.server:type=BrokerTopicMetrics,name=BytesInPerSec,topic=*",
+      "attr" : [ "Count", "OneMinuteRate", "MeanRate" ],
+      "useAllTypeNames" : true,
+      "outputWriters" : [ {
+        "@class" : "com.googlecode.jmxtrans.model.output.KeyOutWriter",
+        "settings" : {
+          "outputFile" : "/tmp/keyout.txt",
+          "maxLogFileSize" : "10485760",
+          "maxLogBackupFiles" : 200,
+          "debug" : true,
+          "typeNames" : ["name"]
+        }
+      } ]
+    } ]
+  } ]
+}
