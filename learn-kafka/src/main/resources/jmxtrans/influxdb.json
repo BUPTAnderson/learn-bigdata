@@ -1,0 +1,28 @@
+{
+  "servers" : [ {
+    "port" : "9999",
+    "host" : "192.168.177.80",
+    "queries" : [ {
+      "obj" : "kafka.server:type=BrokerTopicMetrics,name=BytesInPerSec,topic=*",
+      "attr" : [ "Count", "OneMinuteRate", "MeanRate" ],
+//      "useAllTypeNames" : true,
+      "resultAlias":"kafkaBytesInPerSec2",
+      "outputWriters" : [ {
+        "@class" : "com.googlecode.jmxtrans.model.output.InfluxDbWriterFactory",
+        "url" : "http://192.168.178.38:8086/",
+        "username" : "root",
+        "password" : "root",
+        "database" : "jmxDB",
+        "tags"     : {"application" : "BytesInPerSec"}
+      } ]
+    } ]
+  } ]
+}
+
+//样例结果如下:
+//time                Count   MeanRate           OneMinuteRate    _jmx_port application   attributeName className                                      hostname       objDomain    typeName
+//----                -----   --------           -------------    --------- -----------   ------------- ---------                                      --------       ---------    --------
+//1513678240819000000 2015424                                     9999      BytesInPerSec Count         com.yammer.metrics.reporting.JmxReporter$Meter 192.168.177.80 kafka.server type=BrokerTopicMetrics,name=BytesInPerSec,topic=kyl-test
+//1513678240819000000                            2.964393875e-314 9999      BytesInPerSec OneMinuteRate com.yammer.metrics.reporting.JmxReporter$Meter 192.168.177.80 kafka.server type=BrokerTopicMetrics,name=BytesInPerSec,topic=kyl-test
+//1513678240819000000         0.8327032211826495                  9999      BytesInPerSec MeanRate      com.yammer.metrics.reporting.JmxReporter$Meter 192.168.177.80 kafka.server type=BrokerTopicMetrics,name=BytesInPerSec,topic=kyl-test
+// 发现第一条采集的是count, 第二条采集的是MeanRate, 第三条采集的是OneMinuteRate, 这样在attr中加入多个字段有点浪费

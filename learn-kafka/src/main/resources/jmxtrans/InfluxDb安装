@@ -1,0 +1,15 @@
+网址: https://github.com/influxdata/influxdb
+1. 下载已经编译好的package, 这里下载的是influxdb-1.4.2.x86_64.rpm, 链接: https://portal.influxdata.com/downloads#influxdb
+对于Ubuntu & Debian:
+wget https://dl.influxdata.com/influxdb/releases/influxdb_1.4.2_amd64.deb
+sudo dpkg -i influxdb_1.4.2_amd64.deb
+对于RedHat & CentOS:
+wget https://dl.influxdata.com/influxdb/releases/influxdb-1.4.2.x86_64.rpm
+sudo yum localinstall influxdb-1.4.2.x86_64.rp
+
+2. 启动服务: service influxdb start
+3. 在命令行中直接输入influx，就可以管理数据库了。
+4. 创建用户: create user "root" with password 'root' WITH ALL PRIVILEGES;
+5. 创建库: create database jmxDB; 查看库:　show databases;
+6. 查看表：　show measurements;
+7. 查询数据：　select * from kafkaBytesInPerSec2;
