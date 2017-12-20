@@ -1,3 +1,10 @@
+时间序列数据库最多，使用也最广泛。一般人们谈论时间序列数据库的时候指代的就是这一类存储。按照底层技术不同可以划分为三类。
+
+直接基于文件的简单存储：RRD Tool，Graphite Whisper。这类工具附属于监控告警工具，底层没有一个正规的数据库引擎。只是简单的有一个二进制的文件结构。
+基于K/V数据库构建：opentsdb（基于hbase），blueflood，kairosDB（基于cassandra），influxdb，prometheus（基于leveldb）
+基于关系型数据库构建：mysql，postgresql 都可以用来保存时间序列数据
+
+
 网址: https://github.com/influxdata/influxdb
 1. 下载已经编译好的package, 这里下载的是influxdb-1.4.2.x86_64.rpm, 链接: https://portal.influxdata.com/downloads#influxdb
 对于Ubuntu & Debian:
