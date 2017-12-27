@@ -4,19 +4,32 @@
 基于K/V数据库构建：opentsdb（基于hbase），blueflood，kairosDB（基于cassandra），influxdb，prometheus（基于leveldb）
 基于关系型数据库构建：mysql，postgresql 都可以用来保存时间序列数据
 
-
+详细官方文档: https://docs.influxdata.com/influxdb/v1.4/introduction/
 网址: https://github.com/influxdata/influxdb
 1. 下载已经编译好的package, 这里下载的是influxdb-1.4.2.x86_64.rpm, 链接: https://portal.influxdata.com/downloads#influxdb
+对于OS x:
+brew update
+brew install influxdb
 对于Ubuntu & Debian:
 wget https://dl.influxdata.com/influxdb/releases/influxdb_1.4.2_amd64.deb
 sudo dpkg -i influxdb_1.4.2_amd64.deb
 对于RedHat & CentOS:
 wget https://dl.influxdata.com/influxdb/releases/influxdb-1.4.2.x86_64.rpm
-sudo yum localinstall influxdb-1.4.2.x86_64.rp
+sudo yum localinstall influxdb-1.4.2.x86_64.rpm
+二进制包安装:
+wget https://dl.influxdata.com/influxdb/releases/influxdb-1.4.2_linux_amd64.tar.gz
+tar xvfz influxdb-1.4.2_linux_amd64.tar.gz
 
-2. 启动服务: service influxdb start
+2. 启动服务:
+如果是通过包安装的, 可以使用如下语句启动:
+ sudo service influxdb start
+ 如果直接下载的二进制包, 则通过如下方式启动:
+ 进去InfluxDB目录下的usr/bin文件夹, 执行:
+ ./influxd
 3. 在命令行中直接输入influx，就可以管理数据库了。
 4. 创建用户: create user "root" with password 'root' WITH ALL PRIVILEGES;
 5. 创建库: create database jmxDB; 查看库:　show databases;
 6. 查看表：　show measurements;
 7. 查询数据：　select * from kafkaBytesInPerSec2;
+
+Starting with version 1.3, the web admin interface is no longer available in InfluxDB. The interface does not run on port 8083 and InfluxDB ignores the [admin] section in the configuration file if that section is present. Chronograf replaces the web admin interface with improved tooling for querying data, writing data, and database management. See Chronograf’s transition guide for more information.

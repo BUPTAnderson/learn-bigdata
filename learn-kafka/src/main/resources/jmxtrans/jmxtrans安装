@@ -1,3 +1,4 @@
+需要java jdk-1.7以上版本
 Installing the Debian
 1. 下载http://central.maven.org/maven2/org/jmxtrans/jmxtrans/ .deb 格式的package, 这里下载的是jmxtrans-268.deb
 2. 使用root用户安装: dpkg -i jmxtrans-268.deb
@@ -22,8 +23,8 @@ Installing the RPM
 
 启动Jmx Transformer
 我们需要通过初始化脚本来启动jmxtrans.
-启动命令: ./jmxtrans.sh start [optional path to one json file]
-停止命令: ./jmxtrans.sh stop
+启动命令: ./jmxtrans start [optional path to one json file]
+停止命令: ./jmxtrans stop
 
 我们使用demo rename 成demo.json文件来进行采集, 报错: jmxtrans java.lang.NoClassDefFoundError: Lch/qos/logback/core/util/FileSize;
 

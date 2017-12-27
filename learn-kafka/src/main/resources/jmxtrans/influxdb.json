@@ -19,7 +19,7 @@
   } ]
 }
 
-//样例结果如下:
+//样例结果如下:resultAlias值对应的是表名
 //time                Count   MeanRate           OneMinuteRate    _jmx_port application   attributeName className                                      hostname       objDomain    typeName
 //----                -----   --------           -------------    --------- -----------   ------------- ---------                                      --------       ---------    --------
 //1513678240819000000 2015424                                     9999      BytesInPerSec Count         com.yammer.metrics.reporting.JmxReporter$Meter 192.168.177.80 kafka.server type=BrokerTopicMetrics,name=BytesInPerSec,topic=kyl-test

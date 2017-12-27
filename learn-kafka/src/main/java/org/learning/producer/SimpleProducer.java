@@ -24,13 +24,23 @@ public class SimpleProducer
         props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
 
         Producer<String, String> producer = new KafkaProducer<>(props);
-//        for (int i = 0; i < 100; i++)
         int i = 0;
-        while (i < 50000) {
-            producer.send(new ProducerRecord<String, String>("test", null, Integer.toString(i)));
+        while (i < 5000) {
+            producer.send(new ProducerRecord<String, String>("D879637D5FBB4DCDAD451B3F4C2826A6", Integer.toString(i), Integer.toString(i)));
             i++;
+            // 指定分区
+//            String key = Integer.toString(i);
+//            String value = Integer.toString(i);
+//            producer.send(new ProducerRecord<String, String>("D879637D5FBB4DCDAD451B3F4C2826A6", 8, key, value), new Callback() {
+//                public void onCompletion(RecordMetadata metadata, Exception e) {
+//                    if(e != null) {
+//                        e.printStackTrace();
+//                    } else {
+//                        System.out.println("The offset of the record we just sent is: " + metadata.offset());
+//                    }
+//                }
+//            });
         }
-
         producer.close();
     }
 }
