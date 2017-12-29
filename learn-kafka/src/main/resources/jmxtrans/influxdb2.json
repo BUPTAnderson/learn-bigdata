@@ -1,0 +1,32 @@
+{
+  "servers" : [ {
+    "port" : "9999",
+    "host" : "192.168.177.80",
+    "queries" : [
+      {
+        "obj" : "kafka.log:type=Log,name=LogEndOffset,topic=*,partition=*",
+        "attr" : [ "Value" ],
+        "resultAlias":"topicLogEndOffset",
+        "outputWriters" : [ {
+          "@class" : "com.googlecode.jmxtrans.model.output.InfluxDbWriterFactory",
+          "url" : "http://192.168.178.38:8086/",
+          "username" : "root",
+          "password" : "root",
+          "database" : "jmxDB",
+          "tags"     : {"application" : "LogEndOffset"}
+        } ]
+      }]
+  }
+  ]
+}
+// 采集不同topic不同partition的offset信息
+// 样例结果如下: topicLogEndOffset对应的是表名
+//time                Value _jmx_port application  attributeName className                                      hostname       objDomain typeName
+//----                ----- --------- -----------  ------------- ---------                                      --------       --------- --------
+//1514363689333000000 16666 9999      LogEndOffset Value         com.yammer.metrics.reporting.JmxReporter$Gauge 192.168.177.80 kafka.log type=Log,name=LogEndOffset,topic=kyl-test,partition=2
+//1514363749308000000 16666 9999      LogEndOffset Value         com.yammer.metrics.reporting.JmxReporter$Gauge 192.168.177.80 kafka.log type=Log,name=LogEndOffset,topic=kyl-test,partition=2
+//1514363809303000000 16666 9999      LogEndOffset Value         com.yammer.metrics.reporting.JmxReporter$Gauge 192.168.177.80 kafka.log type=Log,name=LogEndOffset,topic=kyl-test,partition=2
+//1514363869312000000 16666 9999      LogEndOffset Value         com.yammer.metrics.reporting.JmxReporter$Gauge 192.168.177.80 kafka.log type=Log,name=LogEndOffset,topic=kyl-test,partition=2
+//1514363929294000000 16666 9999      LogEndOffset Value         com.yammer.metrics.reporting.JmxReporter$Gauge 192.168.177.80 kafka.log type=Log,name=LogEndOffset,topic=kyl-test,partition=2
+//1514363989298000000 16666 9999      LogEndOffset Value         com.yammer.metrics.reporting.JmxReporter$Gauge 192.168.177.80 kafka.log type=Log,name=LogEndOffset,topic=kyl-test,partition=2
+//1514364049304000000 16666 9999      LogEndOffset Value         com.yammer.metrics.reporting.JmxReporter$Gauge 192.168.177.80 kafka.log type=Log,name=LogEndOffset,topic=kyl-test,partition=2

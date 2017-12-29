@@ -1,0 +1,72 @@
+{
+  "servers" : [ {
+    "port" : "9999",
+    "host" : "192.168.177.78",
+    "queries" : [ {
+      "obj" : "kafka.server:type=BrokerTopicMetrics,name=BytesInPerSec,topic=*",
+      "attr" : [ "Count" ],
+      "resultAlias":"topicBytesInPerSec",
+      "outputWriters" : [ {
+        "@class" : "com.googlecode.jmxtrans.model.output.InfluxDbWriterFactory",
+        "url" : "http://192.168.178.38:8086/",
+        "username" : "root",
+        "password" : "root",
+        "database" : "kafka",
+        "tags"     : {"application" : "BytesInPerSec"}
+      } ]
+    },
+      {
+        "obj" : "kafka.server:type=BrokerTopicMetrics,name=BytesOutPerSec,topic=*",
+        "attr" : [ "Count" ],
+        "resultAlias":"topicBytesOutPerSec",
+        "outputWriters" : [ {
+          "@class" : "com.googlecode.jmxtrans.model.output.InfluxDbWriterFactory",
+          "url" : "http://192.168.178.38:8086/",
+          "username" : "root",
+          "password" : "root",
+          "database" : "kafka",
+          "tags"     : {"application" : "BytesOutPerSec"}
+        } ]
+      },
+      {
+        "obj" : "kafka.server:type=BrokerTopicMetrics,name=MessagesInPerSec,topic=*",
+        "attr" : [ "Count" ],
+        "resultAlias":"topicMessagesInPerSec",
+        "outputWriters" : [ {
+          "@class" : "com.googlecode.jmxtrans.model.output.InfluxDbWriterFactory",
+          "url" : "http://192.168.178.38:8086/",
+          "username" : "root",
+          "password" : "root",
+          "database" : "kafka",
+          "tags"     : {"application" : "MessagesInPerSec"}
+        } ]
+      },
+      {
+        "obj" : "kafka.log:type=Log,name=LogEndOffset,topic=*,partition=*",
+        "attr" : [ "Value" ],
+        "resultAlias":"topicLogEndOffset",
+        "outputWriters" : [ {
+          "@class" : "com.googlecode.jmxtrans.model.output.InfluxDbWriterFactory",
+          "url" : "http://192.168.178.38:8086/",
+          "username" : "root",
+          "password" : "root",
+          "database" : "kafka",
+          "tags"     : {"application" : "LogEndOffset"}
+        } ]
+      },
+      {
+        "obj" : "kafka.log:type=Log,name=Size,topic=*,partition=*",
+        "attr" : [ "Value" ],
+        "resultAlias":"topicPartitionSize",
+        "outputWriters" : [ {
+          "@class" : "com.googlecode.jmxtrans.model.output.InfluxDbWriterFactory",
+          "url" : "http://192.168.178.38:8086/",
+          "username" : "root",
+          "password" : "root",
+          "database" : "kafka",
+          "tags"     : {"application" : "Size"}
+        } ]
+      }
+    ]
+  } ]
+}
