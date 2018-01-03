@@ -1,0 +1,34 @@
+InfluxDB每秒可以处理成千上万条数据。 处理长时间大量数据可能会造成存储问题。 一个自然的解决方案是降低取样数据; 只在有限的时间保持高精度的原始数据，并将较低的精度，汇总数据存储更长时间或永久存储。
+InfluxDB提供了两个功能 - 连续查询（Continuous Queries CQ）和保留策略（Retention Policies RP） - 自动执行降低采样和使旧数据过期的过程。 本指南介绍了CQ和RP的实际使用案例，并介绍了如何在InfluxDB中设置这些功能。
+
+Definitions 定义
+连续查询（CQ）是在数据库中自动周期性运行的InfluxQL查询。 CQ在SELECT子句中需要一个函数，并且必须包含一个GROUP BY time() 子句。
+保留策略（RP）是InfluxDB数据结构的一部分，描述了InfluxDB保存数据的时间。 InfluxDB会比较本地服务器的时间戳和数据的时间戳，并删除比RP的DURATION更早的数据。 一个数据库可以有多个RP，每个RP中的数据库都是唯一的。
+本指南不会详细介绍创建和管理CQ和RP的语法。 如果您对这两个概念都不熟悉，我们建议您查看详细的CQ文档和RP文档。
+
+对数据取样
+本节使用虚构的实时数据, 该数据记录了一个餐厅每10s间隔内通过电话和网站订餐的数量. 我们将这些数据存储在一个名为数据库名为food_data, measurement为orders, field为phone和website的表中.
+样例数据:
+name: orders
+------------
+time			               phone	 website
+2016-05-10T23:18:00Z	 10 	   30
+2016-05-10T23:18:10Z	 12 	   39
+2016-05-10T23:18:20Z	 11 	   56
+
+目标:
+假设从长远来看, 我们只对30分钟内通过电话和网站的平均订单数量感兴趣. 在接下来的步骤中, 我们使用RP和CQ来:
+自动将十秒的间隔数据聚合到30分钟的间隔数据
+自动删除原始十秒间隔数据中超过两个小时的数据
+自动删除30分钟间隔的数据中超过52周的数据
+
+数据库准备:
+在将数据写入数据库food_data之前，我们执行以下步骤。 在插入任何数据之前我们这样做，因为CQ只是针对最近的数据运行; 也就是说，数据的时间戳不会比now()减去CQ的FOR子句更早，或者如果CQ没有FOR子句，数据的时间戳不会比now()减去GROUP BY的time()间隔的时间更早。
+1. 创建数据库:
+  > CREATE DATABASE "food_data"
+2. 创建2小时的DEFAULT RP(retention policy保留策略)
+如果我们在向数据库写入point时没有提供显式的RP，InfluxDB将写入DEFAULT RP。 我们使DEFAULT RP将数据保留两个小时，因为我们希望InfluxDB自动将传入的十秒钟间隔的数据写入该RP。
+使用CREATE RETENTION POLICY语句来创建一个DEFAULT RP:
+> CREATE RETENTION POLICY "two_hours" ON "food_data" DURATION 2h REPLICATION 1 DEFAULT
+该语句创建一个叫做two_hours的RP存在于数据库food_data中, two_hours保存数据的持续时间为2个小时, 并且它是数据库food_data的默认RP.
+! 复制因子（REPLICATION 1）是必需的参数，但对于单节点实例必须始终设置为1。

@@ -1,0 +1,105 @@
+通过HTTP API查询数据
+
+HTTP API是查询InfluxDB数据的主要手段(请参阅命令行界面(command line interface)和客户端库(client libraries)来获取查询数据库的其他方法)
+要执行查询，请向/ query端点发送GET请求，将URL参数db设置为目标数据库，并将URL参数q设置为查询语句。你也可以使用POST请求，通过发送相同的参数作为URL参数，或者使用application/x-www-form-urlencoded作为主体的一部分。
+下面的实例使用HTTP API来查询你在Writing Data中使用的数据库:
+curl -G 'http://localhost:8086/query?pretty=true' --data-urlencode "db=mydb" --data-urlencode "q=SELECT \"value\" FROM \"cpu_load_short\" WHERE \"region\"='us-west'"
+InfluxDB返回JSON, 你的查询结果显示在"results"数组中, 如果发生错误, InfluxDB会设置一个"error"键并附上错误说明.
+返回结果:
+{
+    "results": [
+        {
+            "statement_id": 0,
+            "series": [
+                {
+                    "name": "cpu_load_short",
+                    "columns": [
+                        "time",
+                        "value"
+                    ],
+                    "values": [
+                        [
+                            "2015-01-29T21:55:43.702900257Z",
+                            2
+                        ],
+                        [
+                            "2015-01-29T21:55:43.702900257Z",
+                            0.55
+                        ],
+                        [
+                            "2015-06-11T20:46:02Z",
+                            0.64
+                        ]
+                    ]
+                }
+            ]
+        }
+    ]
+}
+注意: 在URL中添加pretty=true将启用pretty-printed的JSON输出.虽然这对调试或直接使用curl等工具进行查询很有用, 单不建议用于生产, 因为它会消耗不必要的网络带宽.
+
+> 多查询
+在单个API调用中向InfluxDB发送多个查询。 简单地用分号分隔每个查询，例如：
+curl -G 'http://localhost:8086/query?pretty=true' --data-urlencode "db=mydb" --data-urlencode "q=SELECT \"value\" FROM \"cpu_load_short\" WHERE \"region\"='us-west';SELECT count(\"value\") FROM \"cpu_load_short\" WHERE \"region\"='us-west'"
+返回结果:
+{
+    "results": [
+        {
+            "statement_id": 0,
+            "series": [
+                {
+                    "name": "cpu_load_short",
+                    "columns": [
+                        "time",
+                        "value"
+                    ],
+                    "values": [
+                        [
+                            "2015-01-29T21:55:43.702900257Z",
+                            2
+                        ],
+                        [
+                            "2015-01-29T21:55:43.702900257Z",
+                            0.55
+                        ],
+                        [
+                            "2015-06-11T20:46:02Z",
+                            0.64
+                        ]
+                    ]
+                }
+            ]
+        },
+        {
+            "statement_id": 1,
+            "series": [
+                {
+                    "name": "cpu_load_short",
+                    "columns": [
+                        "time",
+                        "count"
+                    ],
+                    "values": [
+                        [
+                            "1970-01-01T00:00:00Z",
+                            3
+                        ]
+                    ]
+                }
+            ]
+        }
+    ]
+}
+
+查询数据时的其它选项:
+时间格式:
+InfluxDB中的所有内容都以UTC存储和报告。 默认情况下，RFC3339 UTC中返回时间戳，具有纳秒精度，例如2015-08-04T19：05：14.318570484Z。 可以使用 epoch 参数指定输出的时间格式。可选值有 epoch=[h,m,s,ms,u,ns]。。 例如，获取到以秒为单位的时间数据:
+curl -G 'http://localhost:8086/query' --data-urlencode "db=mydb" --data-urlencode "epoch=s" --data-urlencode "q=SELECT \"value\" FROM \"cpu_load_short\" WHERE \"region\"='us-west'"
+Authentication鉴权:
+InfluxDB中的认证默认是关闭的。 有关如何启用和设置身份验证，请参阅身份验证和授权。
+最大行限制:
+max-row-limit 配置选项允许用户限制返回结果的最大数量，以防止InfluxDB在汇总结果时耗尽内存。
+max-row-limit 配置选项默认设置为0。 该默认设置允许每个请求返回无限数量的行。
+Chunking
+通过设置查询字符串参数chunked = true，可以使用分块返回流式批处理结果而不是单个响应。 response将按照系列或每10000points进行分类，以先发生者为准。 要将最大块大小更改为其他值，请将查询字符串参数chunk_size设置为不同的值。 例如，以20,000点的批次得到你的结果：
+curl -G 'http://localhost:8086/query' --data-urlencode "db=deluge" --data-urlencode "chunked=true" --data-urlencode "chunk_size=20000" --data-urlencode "q=SELECT * FROM liters"

@@ -20,16 +20,74 @@ sudo yum localinstall influxdb-1.4.2.x86_64.rpm
 wget https://dl.influxdata.com/influxdb/releases/influxdb-1.4.2_linux_amd64.tar.gz
 tar xvfz influxdb-1.4.2_linux_amd64.tar.gz
 
+influxDB配置文件路径:
+Linux: /etc/influxdb/influxdb.conf
+MacOS: /usr/local/etc/influxdb.conf
+
 2. 启动服务:
 如果是通过包安装的, 可以使用如下语句启动:
  sudo service influxdb start
  如果直接下载的二进制包, 则通过如下方式启动:
  进去InfluxDB目录下的usr/bin文件夹, 执行:
- ./influxd
+ ./influx  // 由于已经加入到bin目录下, 可以直接执行influx命令来启动, 默认连接的是localhost的8086端口, 其它启动参数可以通过 influx --help
+ 另一种常用的带参数的启动方式:
+ $ influx -precision rfc3339  // The -precision argument specifies the format/precision of any returned timestamps. In the example above, rfc3339 tells InfluxDB to return timestamps in RFC3339 format (YYYY-MM-DDTHH:MM:SS.nnnnnnnnnZ).
+ // -precision参数指定了所有timestamps数据的返回格式和精度, 上面这个例子中, rfc3339告诉InfluxDB返回timestamp时采用rfc3339格式(YYYY-MM-DDTHH:MM:SS.nnnnnnnnnZ)
+ // 退出命令行, 执行:
+  exit
 3. 在命令行中直接输入influx，就可以管理数据库了。
 4. 创建用户: create user "root" with password 'root' WITH ALL PRIVILEGES;
-5. 创建库: create database jmxDB; 查看库:　show databases;
-6. 查看表：　show measurements;
-7. 查询数据：　select * from kafkaBytesInPerSec2;
+5. 创建库: create database jmxDB // 数据库名使用双引号引起了, 如果数据库名只包含字母数字下划线并且不是以数字开头的话可以不使用双引号, 按回车执行, 不会出现任何创建成功信息: No news is good news!
+   查看库:　show databases // 注意刚开始的时候有一个默认的库:_internal, _internal数据库由InfluxDB创建并用于存储内部运行时指标。
+   删除库: drop database test
+   使用库: use jmxDB   // 大部分InfluxQL语句必须针对特定的库进行操作, 这时你需要在你的每条查询语句中明确的指定数据库的名字, 但是CLI提供了一个方便的语句: USE <db-name>, 该语句可以设置你所有后续查询中使用的数据库.
+
+InfluxDB中的数据通过时间序列来组织, 这些数据有包含一个测量值, 如“cpu_load”或“temperature”。时间序列有0到多个points(point相当于数据库中的一条记录), 每个point表示度量的一个离散样本.
+points由以下部分组成:
+time(a timestamp), a measurement(比如"cpu_load"), 至少一个key-value field(本身的度量值, 如: "value=0.64", or "temperature=21.2"), 0到多个key-value tags(包含关于value的metadata, 比如:"host=server02","region=EMEA", "dc=Frankfurt")
+    概念上来说, 你可以将measurement看作一个SQL table, 不过这个表的主索引总是time. tags and fields 是表中有效的列, tags是有索引的, fields没有索引. 与传统的表不同的地方是, 在InfluxDB中你可以有百万级的measurements, 你不必事先定义schemas, 并且null值不会被存储
+    Points使用Line Protocol协议写入InfluxDB, Line Protocol遵循以下格式:
+        <measurement>[,<tag-key>=<tag-value>...] <field-key>=<field-value>[,<field2-key>=<field2-value>...] [unix-nano-timestamp]
+    可以写入InfluxDB的points样例如下:
+cpu,host=serverA,region=us_west value=0.64
+payment,device=mobile,product=Notepad,method=credit billed=33,licenses=3i 1434067467100293230
+stock,symbol=AAPL bid=127.46,ask=127.48
+temperature,machine=unit42,type=assembly external=25,internal=37 1434067467000000000
+
+> 通过CLI往InfluxDB中插入一条时间序列的datapoint, 可以通过在INSERT后面跟point的方式:
+> INSERT cpu,host=serverA,region=us_west value=0.64
+这样, 一条point, measurement名字是cpu, tags是houst和region, 度量值是 value=0.64被插入到了数据库中
+
+> 要查询其中的数据, 我们可以通过下面的方式:
+> SELECT "host", "region", "value" FROM "cpu"
+name: cpu
+---------
+time		    	            host    region  value
+2015-10-21T19:28:07.580664347Z  serverA us_west 0.64
+注意: 我们在写入point是并没有提供一个timestamp. 当没有给一个poin提供timestamp时, InfluxDB会在point被接收时分配本地当前的时间戳. 这意味着你的时间戳会有所不同.
+
+> 让我们来存储另一种格式的数据, 在同一个measurement中存储两个fields
+> INSERT temperature,machine=unit42,type=assembly external=25,internal=37
+在一个query中返回所有的fields和tags, 你需要使用*操作:
+> SELECT * FROM "temperature"
+name: temperature
+-----------------
+time                            external    internal    machine	type
+2015-10-21T19:28:08.385013942Z  25          37     		unit42  assembly
+> 警告: 在大型数据库上使用*而不加limit子句可能会导致性能问题. 你可以使用Ctrl+C来取消需要太长时间才能响应的查询
+
+6. 查看所有表：　show measurements
+7. 新建表: InfluxDB中没有显式的新建表的语句，只能通过insert数据的方式来建立新表。如上面的INSERT语句所示：
+   INSERT cpu,host=serverA,region=us_west value=0.64
+   要注意的是 InfluxDB的insert中，表名与数据之间用逗号（,）分隔，tag和field之间用 空格分隔，多个tag或者多个field之间用逗号（,）分隔。
+8. 查询数据：　select * from kafkaBytesInPerSec2;
+9. 删除表:  drop measurement disk_free
+10. 修改和删除数据: InfluxDB属于时序数据库，没有提供修改和删除数据的方法。但是删除可以通过InfluxDB的数据保存策略（Retention Policies）来实现
+
+series操作:
+series表示这个表里面的数据，可以在图表上画成几条线，series主要通过tags排列组合算出来。
+我们可以查询表的series，如下所示：
+show series from mem
+
 
 Starting with version 1.3, the web admin interface is no longer available in InfluxDB. The interface does not run on port 8083 and InfluxDB ignores the [admin] section in the configuration file if that section is present. Chronograf replaces the web admin interface with improved tooling for querying data, writing data, and database management. See Chronograf’s transition guide for more information.

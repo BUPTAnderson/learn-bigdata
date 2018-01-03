@@ -1,0 +1,71 @@
+有很多方式可以将数据写入InfluxDB, 包括命令行界面, 客户端库和用于常见数据格式的插件(如Graphite). 这里, 我们将向您展示如何使用内置的HTTP API创建数据库并向其写入数据.
+
+> 通过HTTP API创建/删除 数据库
+要创建数据库，请将POST请求发送到/query端点，并将URL参数q设置为CREATE DATABASE <new_database_name>。 下面的示例向本地主机上运行的InfluxDB发送请求，并创建数据库mydb：
+curl -i -XPOST http://localhost:8086/query --data-urlencode "q=CREATE DATABASE mydb"
+curl -i -XPOST http://localhost:8086/query --data-urlencode "q=DROP DATABASE mydb"
+
+> 通过HTTP API写入数据
+通过向/write端点发送POST请求，HTTP API是将数据写入InfluxDB的主要手段。 下面的例子是向mydb数据库写了一个单一的point。 数据measurement为cpu_load_short，tag keys为host和region,对应的values为server01和us-west，field key为value, value值为0.64, 时间戳为1434055562000000000组成。
+tags、field和时间戳三者之间以空格相分隔。
+curl -i -XPOST 'http://localhost:8086/write?db=mydb' --data-binary 'cpu_load_short,host=server01,region=us-west value=0.64 1434055562000000000'
+当写point时, 你必须在查询参数db中指定一个具体的存在的库,如果你没有通过rp查询参数提供一个保留策略, points将被写入db并使用默认的保留策略
+POST的body部分, 我们称之为Line Protocol-包含了你想要保存的时间序列数据. 它们有measurement, tags, fields和一个timestamp组成. InfluxDB需要一个measurement名字.严格来说，tags(标签)是可选的，但大多数points序列都包含标签来区分数据源，并使查询既简单又高效。
+tag(标签)的key和value都是string. Field的key是必须的并且是string, 默认情况下, field的值是float类型. timestamp(时间戳)-写在Line的最后的Unix时间,从1970-01-01到现在的纳秒数- 是可选的.
+如果你没有指定时间戳，InfluxDB在Unix纪元中使用服务器的本地纳秒时间戳。 在InfluxDB中任何与时间有关的事情都是UTC。
+
+> 写入多个points
+通过采用新行来分割每个point可以同时Post多个points到多个序列中. 通过这种方式批量提交points会获得更高的性能
+以下实例将3个point写入数据库mydb. 第一个point属于measurement是cpu_load_short, tag(标签)是host=server02的序列, 并使用服务器本地时间戳,
+第二个point属于measurement是cpu_load_short, tag(标签)是host=server02,region=us-west的序列, 并且指定时间戳是1422568543702900257
+第三个point和第二个point的时间戳相同, 但是它是写到measurement是cpu_load_short并且tag是direction=in,host=server01,region=us-west的序列
+curl -i -XPOST 'http://localhost:8086/write?db=mydb' --data-binary 'cpu_load_short,host=server02 value=0.67
+cpu_load_short,host=server02,region=us-west value=0.55 1422568543702900257
+cpu_load_short,direction=in,host=server01,region=us-west value=2.0 1422568543702900257'
+
+> 将文件内容写points
+将文件内容写points通过传递@filename给curl. 文件中的数据应该遵循InfluxDB的line protocol语法规范
+一个正确格式的文件(cpu_data.txt)实例:
+cpu_load_short,host=server02 value=0.67
+cpu_load_short,host=server02,region=us-west value=0.55 1422568543702900257
+cpu_load_short,direction=in,host=server01,region=us-west value=2.0 1422568543702900257
+通过以下命令将cpu_data.txt中的数据写入到mydb数据库中:
+curl -i -XPOST 'http://localhost:8086/write?db=mydb' --data-binary @cpu_data.txt
+注意：如果您的数据文件超过5,000 points，可能需要将该文件分成几个文件，以便将数据批量写入InfluxDB。 默认情况下，HTTP请求在五秒钟后超时。 InfluxDB在超时之后仍然会尝试写出这些points，但是无法确认它们是否成功写入。
+
+> 无Schema设计
+InfluxDB是一个无模式的数据库. 你可以随时添加新的measurements, tags和fields. 请注意, 如果你尝试写入与以前使用的类型不同的数据(例如, 将字符串写入之前接收整数的字段), InfluxDB将拒绝这些数据.
+
+> 关于REST的说明
+InfluxDB仅使用HTTP作为一种方便且广泛支持的数据传输协议。
+现代Web API已经固定为REST风格，因为它解决了一个共同的需求。 随着端点数量的增加，对组织系统的需求变得迫切。 REST是组织大量端点的行业协定风格。 这种一致性对于那些开发和使用API的人来说是很好的：每个人都知道应该期待什么
+然而, REST只是一种规范. InfluxDB使用三个API endpoints. 这样可以简单易懂的理解系统使用HTTP作为InfluxQL的传输方法. InfluxDB API不会尝试成为RESTful。
+
+> HTTP响应摘要
+1）2xx：204代表no content，200代表InfluxDB可以接收请求但是没有完成请求。一般会在body体中带有出错信息。
+2）4xx：InfluxDB不能解析请求。
+3）5xx：系统过载或严重受损。
+错误响应的示例：
+将一个float数值写入之前为booleans的field(字段):
+curl -i -XPOST 'http://localhost:8086/write?db=hamlet' --data-binary 'tobeornottobe booleanonly=true'
+curl -i -XPOST 'http://localhost:8086/write?db=hamlet' --data-binary 'tobeornottobe booleanonly=5'
+返回:
+HTTP/1.1 400 Bad Request
+Content-Type: application/json
+Request-Id: [...]
+X-Influxdb-Version: 1.4.x
+Date: Wed, 01 Mar 2017 19:38:01 GMT
+Content-Length: 150
+
+{"error":"field type conflict: input field \"booleanonly\" on measurement \"tobeornottobe\" is type float, already exists as type boolean dropped=1"}
+将一个point写入一个并不存在的数据库:
+curl -i -XPOST 'http://localhost:8086/write?db=atlantis' --data-binary 'liters value=10'
+返回:
+HTTP/1.1 404 Not Found
+Content-Type: application/json
+Request-Id: [...]
+X-Influxdb-Version: 1.4.x
+Date: Wed, 01 Mar 2017 19:38:35 GMT
+Content-Length: 45
+
+{"error":"database not found: \"atlantis\""}
