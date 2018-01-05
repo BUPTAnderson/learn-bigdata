@@ -32,3 +32,49 @@ time			               phone	 website
 > CREATE RETENTION POLICY "two_hours" ON "food_data" DURATION 2h REPLICATION 1 DEFAULT
 该语句创建一个叫做two_hours的RP存在于数据库food_data中, two_hours保存数据的持续时间为2个小时, 并且它是数据库food_data的默认RP.
 ! 复制因子（REPLICATION 1）是必需的参数，但对于单节点实例必须始终设置为1。
+注意：当我们在步骤1中创建food_data数据库时，InfluxDB会自动生成一个名为autogen的RP，并将其设置为数据库的DEFAULT RP。 autogen RP具有无限的保留期限。 通过上面的查询，two_hours RP将替换autogen RP作为为food_data数据库的DEFAULT RP。
+3. 创建一个52-week RP
+接下来我们要创建另一个保存数据52周的RP，而不是数据库的DEFAULT RP。 最终，30分钟的汇总数据将被存储在这个RP中。
+使用CREATE RETENTION POLICY 语句来创建一个非DEFAULT的数据库:
+> CREATE RETENTION POLICY "a_year" ON "food_data" DURATION 52w REPLICATION 1
+该语句创建了一个叫做a_year的RP存在于数据库food_data中. a_year保存数据的持续时间为52周(52w). 语句中没有DEFAULT参数确保a_year不是数据库food_data的默认DEFAULT RP.也就是说，针对没有指定RP的food_data的写操作和读操作仍然会使用two_hours RP（DEFAULT RP）。
+4. 创建CQ
+现在我们已经建立了我们的RP，我们要创建一个CQ，它能够自动地，周期性地将采样频率是十秒钟的数据降低采样频率为30分钟，并将这些结果以不同的保留策略存储在不同的measurement中。
+使用CREATE CONTINOUS QUERY语句来创建一个CQ:
+> CREATE CONTINUOUS QUERY "cq_30m" ON "food_data" BEGIN
+  SELECT mean("website") AS "mean_website",mean("phone") AS "mean_phone"
+  INTO "a_year"."downsampled_orders"
+  FROM "orders"
+  GROUP BY time(30m)
+END
+该语句在数据库food_data中创建了一个叫做cq_30m的CQ. cq_30m告诉InfluxDB计算measurement为orders, 并且RP是默认的two_hours中的两个field website和phone的30分钟的平均值.
+同时告诉InfluxDB将计算的平均值以field keys为meas_website和mean_phone写入到保留策略为a_year,measurement为downsampled_orders中. InfluxDB会每30分钟运行一次该查询来处理前30分钟的数据.
+注意：请注意，我们在INTO子句中完全限定了（即，我们使用语法"<retention_policy>"."<measurement>"）measurement。 InfluxDB需要这种语法才能将数据写入除DEFAULT RP之外的RP。
+
+结果
+通过新的CQ和两个新的RP，food_data准备开始接收数据。 在向我们的数据库写入数据并让其运行一会之后，我们看到两个度量：order和downsampled_orders。
+> SELECT * FROM "orders" LIMIT 5
+name: orders
+---------
+time			                phone  website
+2016-05-13T23:00:00Z	  10     30
+2016-05-13T23:00:10Z	  12     39
+2016-05-13T23:00:20Z	  11     56
+2016-05-13T23:00:30Z	  8      34
+2016-05-13T23:00:40Z	  17     32
+
+> SELECT * FROM "a_year"."downsampled_orders" LIMIT 5
+name: downsampled_orders
+---------------------
+time			                mean_phone  mean_website
+2016-05-13T15:00:00Z	  12          23
+2016-05-13T15:30:00Z	  13          32
+2016-05-13T16:00:00Z	  19          21
+2016-05-13T16:30:00Z	  3           26
+2016-05-13T17:00:00Z	  4           23
+
+orders中的数据是位于two-hour RP中的采样频率为十秒钟的原始数据。 downsampled_orders中的数据是受52-week RP影响的采样频率为30分钟的聚合数据。
+请注意，downsampled_orders中的第一个时间戳比订单中的第一个时间戳更早。 这是因为InfluxDB已经将orders中时间戳比我们本地服务器的时间戳早两个小时（假设我们在2016-05-13T00：59：59Z执行了SELECT查询）的数据删除了。 InfluxDB只会将downsampled_orders中52周之前的数据删除。
+注意:
+请注意，在第二个SELECT语句中我们完全有资格操作（即，我们使用语法"<retention_policy>"."<measurement>"）downsampled_orders。 我们必须在该查询中指定RP来选择驻留在除DEFAULT RP之外的RP中的数据。
+默认情况下，InfluxDB每隔30分钟执行一次RP。 在两次检查之间，orders中可能有两个小时以上的数据。 InfluxDB执行检查RP的速率是一个可配置的设置，请参阅数据库配置。

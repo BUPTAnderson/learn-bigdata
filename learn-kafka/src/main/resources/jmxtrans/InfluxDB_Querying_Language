@@ -1,0 +1,54 @@
+样例数据
+
+创建数据库:
+> CREATE DATABASE NOAA_water_database
+> exit
+
+下载并写入数据到InfluxDB
+curl https://s3.amazonaws.com/noaa.water-database/NOAA_data.txt -o NOAA_data.txt
+influx -import -path=NOAA_data.txt -precision=s -database=NOAA_water_database
+
+查看是否导入了5张表:
+> SHOW measurements
+name: measurements
+------------------
+name
+average_temperature
+h2o_feet
+h2o_pH
+h2o_quality
+h2o_temperature
+
+查看导入的数据量是否正确
+> SELECT COUNT("water_level") FROM h2o_feet
+name: h2o_feet
+--------------
+time			               count
+1970-01-01T00:00:00Z	 15258
+
+
+> SELECT * FROM "h2o_feet" WHERE time > now() - 7d
+tag的值或field为string类型的值没有加单引号的话不会返回结果
+> SELECT "water_level" FROM "h2o_feet" WHERE "location" = santa_monica
+
+> SELECT "water_level" FROM "h2o_feet" WHERE "location" = "santa_monica"
+
+> SELECT "water_level" FROM "h2o_feet" WHERE "location" = 'santa_monica'
+
+name: h2o_feet
+--------------
+time                   water_level
+2015-08-18T00:00:00Z   2.064
+[...]
+2015-09-18T21:42:00Z   4.938
+
+group by操作:
+GROUP BY *
+   Groups results by all tags
+GROUP BY <tag_key>
+   Groups results by a specific tag
+GROUP BY <tag_key>,<tag_key>
+   Groups results by more than one tag. tag keys直接的顺序随意.
+如果同时含有where子句和group by子句, group by子句一定要在where子句后面
+
+GROUP BY time() 查询按用户指定的时间间隔组合查询结果。
