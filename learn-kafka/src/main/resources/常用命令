@@ -47,6 +47,7 @@ This is another message
 
 消费mesage：
 > bin/kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic test --from-beginning
+旧版本: bin/kafka-console-consumer.sh --zookeeper localhost:2181 --topic test --from-beginning
 This is a message
 This is another message
 
