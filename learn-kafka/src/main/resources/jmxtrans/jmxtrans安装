@@ -13,13 +13,24 @@ Installing the Debian
 Installing the RPM
 1. 下载http://central.maven.org/maven2/org/jmxtrans/jmxtrans/ .rpm 格式的package, 这里下载的是jmxtrans-268.rpm
 2. 使用root用户安装: rpm -i jmxtrans-268.rpm
+    如果有以下错误
+    [root@dx3 local]# rpm -i jmxtrans-268.rpm
+    error: Failed dependencies:
+    java >= 1.7 is needed by jmxtrans-268-1.noarch
+
+    则执行命令
+    [root@dx3 local]# rpm -i jmxtrans-268.rpm --nodeps --force
 3. 设置你需要的JVM heap size, 这里默认是512MB, 你监控的JVM越多, 你就需要更多的heap size, 如果遇到OutOfMemoryError错误, 这是你就需要通过修改/etc/jmxtrans/wrapper.conf中wrapper.java.memory的大小.
-    note:   应用按照的目录是: /usr/share/jmxtrans
+    note:   应用安装的目录是: /usr/share/jmxtrans
             配置文件是: /etc/jmxtrans/wrapper.conf
             初始化脚本是: /etc/init.d/jmxtrans
             .json文件的存放目录是: /var/lib/jmxtrans
             日志文件: /var/log/jmxtrans/jmxtrans.log
 
+4、调试，查看
+    将日志等级修改为DEBUG
+    修改配置文件/usr/share/jmxtrans/etc/wrapper.conf中的wrapper.java.additional.5=-Djmxtrans.log.level=DEBUG
+    日志文件目录 wrapper.java.additional.6=-Djmxtrans.log.dir=/var/log/jmxtrans
 
 启动Jmx Transformer
 我们需要通过初始化脚本来启动jmxtrans.
@@ -37,3 +48,23 @@ wrapper.java.classpath.93=lib/logback-core-1.2.3.jar
 同时把logback-core-1.2.3.jar添加到配置的位置: /usr/share/jmxtrans/lib目录下
 
 查看jmxtrans状态可以通过./jmxtrans status
+
+5. 修改采样间隔
+采样间隔默认是60s
+对于Installing the Debian
+修改 /etc/default/jmxtrans, 将export SECONDS_BETWEEN_RUNS=60改成你想要的值
+
+对于Installing the RPM
+修改 /etc/jmxtrans/wrapper.conf, 添加下面两行参数, 第二个参数的值为采样间隔, 单位是秒
+wrapper.app.parameter.4=-s
+wrapper.app.parameter.5=30
+
+上述两种方式是修改整个jmxtrans的采样间隔, 如果知识向修改某个json文件的采样间隔, 可以在json文件中添加如下第三个参数, 下面是说明runPeriodSeconds和port和host是同级别的:
+"port" : "9999",
+"host" : "192.168.177.79",
+"runPeriodSeconds": 30,
+
+
+jmxtarns 192.168.178.37 10.160.7.99 10.160.7.100上tomcat 打开9999端口
+influxdb 192.168.178.38 10.160.7.99
+
