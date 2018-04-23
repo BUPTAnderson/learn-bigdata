@@ -64,7 +64,12 @@ wrapper.app.parameter.5=30
 "host" : "192.168.177.79",
 "runPeriodSeconds": 30,
 
+6. 报错: You could try to size the 'queryProcessorExecutor' to a larger size.
+Number of threads used to process queries.默认值是10, 修改配置文件: /etc/jmxtrans/wrapper.conf, 增加下面两项
+wrapper.app.parameter.6=--query-processor-executor-pool-size
+wrapper.app.parameter.7=30
 
+其它配置可以看源码中的类JmxTransConfiguration
 jmxtarns 192.168.178.37 10.160.7.99 10.160.7.100上tomcat 打开9999端口
 influxdb 192.168.178.38 10.160.7.99
 

@@ -2,12 +2,15 @@ package org.learning;
 
 import kafka.admin.AdminUtils;
 import kafka.admin.RackAwareMode;
+import kafka.admin.TopicCommand;
 import kafka.server.ConfigType;
 import kafka.utils.ZkUtils;
 import org.apache.kafka.common.requests.MetadataResponse;
 import org.apache.kafka.common.security.JaasUtils;
 
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
@@ -21,6 +24,7 @@ public class BasicOperation
     {
         // 创建topic
 //        createTopic();
+        createTopic("bds-test-002:2182,bds-test-003:2182,bds-test-004:2182/kafka-dev", "test001", 2, 3);
         // 删除topic
 //        deleteTopic();
         // 查询topic properties
@@ -34,9 +38,27 @@ public class BasicOperation
     // 创建topic
     public static void createTopic()
     {
-        ZkUtils zkUtils = ZkUtils.apply("192.168.177.80:2182", 30000, 30000, JaasUtils.isZkSecurityEnabled());
+        ZkUtils zkUtils = ZkUtils.apply("bds-test-002:2182,bds-test-003:2182,bds-test-004:2182/kafka-dev", 30000, 30000, JaasUtils.isZkSecurityEnabled());
         // 创建一个单分区单副本名为t1的topic
         AdminUtils.createTopic(zkUtils, "kyl-test", 3, 2, new Properties(), RackAwareMode.Enforced$.MODULE$);
+        zkUtils.close();
+    }
+
+    public static void createTopic(String zkConnect, String topicName, Integer shardNum, long retentionDays) {
+        ZkUtils zkUtils = ZkUtils.apply(zkConnect, 30000, 30000, JaasUtils.isZkSecurityEnabled());
+        List<String> options = new ArrayList<String>();
+        options.add("--create");
+        options.add("--topic");
+        options.add(topicName);
+        options.add("--partitions");
+        options.add(Integer.toString(shardNum));
+        options.add("--replication-factor");
+        options.add(Integer.toString(2));
+        options.add("--config");
+        long retention = retentionDays * 86400000L;
+        options.add("retention.ms=" + retention);
+        TopicCommand.TopicCommandOptions option = new TopicCommand.TopicCommandOptions(options.toArray(new String[options.size()]));
+        TopicCommand.createTopic(zkUtils, option);
         zkUtils.close();
     }
 

@@ -172,6 +172,23 @@ public class JmxConnection
         return map;
     }
 
+    public Map<Integer, Long> getTopicSize(String topicName)
+    {
+        Set<ObjectName> objs = getLogSizeObjects(topicName);
+        if (objs == null) {
+            return null;
+        }
+        Map<Integer, Long> map = new HashMap<>();
+        for (ObjectName objName : objs) {
+            int partId = getParId(objName);
+            Object val = getAttribute(objName, "Value");
+            if (val != null) {
+                map.put(partId, (Long) val);
+            }
+        }
+        return map;
+    }
+
     private int getParId(ObjectName objName)
     {
         if (newKafkaVersion) {
@@ -198,6 +215,33 @@ public class JmxConnection
         }
         else {
             objectName = "\"kafka.log\":type=\"Log\",name=\"" + topicName + "-*-LogEndOffset\"";
+        }
+        ObjectName objName = null;
+        Set<ObjectName> objectNames = null;
+        try {
+            objName = new ObjectName(objectName);
+            objectNames = conn.queryNames(objName, null);
+        }
+        catch (MalformedObjectNameException e) {
+            e.printStackTrace();
+            return null;
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+
+        return objectNames;
+    }
+
+    private Set<ObjectName> getLogSizeObjects(String topicName)
+    {
+        String objectName;
+        if (newKafkaVersion) {
+            objectName = "kafka.log:type=Log,name=Size,topic=" + topicName + ",partition=*";
+        }
+        else {
+            objectName = "\"kafka.log\":type=\"Log\",name=\"" + topicName + "-*-Size\"";
         }
         ObjectName objName = null;
         Set<ObjectName> objectNames = null;

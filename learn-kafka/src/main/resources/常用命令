@@ -56,6 +56,12 @@ This is another message
 删除数据库默认是disable，如果想让该命令生效，需要在配置文件中做如下配置：
 delete.topic.enable=true
 
+修改topic过期时间:
+bin/kafka-topics.sh --zookeeper localhost:2181 --alter --topic F3E7A8D4E3514998AE34668EB28CA83D --config retention.ms=259200000
+创建topic的时候指定topic的参数:
+bin/kafka-topics.sh --zookeeper localhost:2181 --create --topic my-topic --partitions 1
+          --replication-factor 1 --config max.message.bytes=64000 --config flush.messages=1
+
 开启jmx端口:
 修改bin/kafka-server-start.sh，添加JMX_PORT参数，添加后样子如下:
 if [ "x$KAFKA_HEAP_OPTS" = "x" ]; then

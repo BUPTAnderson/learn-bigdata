@@ -24,11 +24,17 @@ public class AutomaticOffsetCommitting
         props.put("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
         KafkaConsumer<String, String> consumer = new KafkaConsumer<>(props);
 //        consumer.subscribe(Arrays.asList("foo", "bar"));  // 一个消费者可以同时消费多个topic
-        consumer.subscribe(Arrays.asList("kyl-topic"));
+        consumer.subscribe(Arrays.asList("test"));
         while (true) {
             ConsumerRecords<String, String> records = consumer.poll(100);
             for (ConsumerRecord<String, String> record : records)
                 System.out.printf("offset = %d, key = %s, value = %s%n", record.offset(), record.key(), record.value());
+            try {
+                Thread.currentThread().sleep(10000L);
+            }
+            catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
     }
 }
