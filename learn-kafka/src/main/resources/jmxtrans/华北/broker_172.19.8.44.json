@@ -1,0 +1,99 @@
+{
+  "servers" : [ {
+    "port" : "9999",
+    "host" : "1xx.1x.x.xx",
+    "queries" : [ {
+      "obj" : "kafka.server:type=BrokerTopicMetrics,name=BytesInPerSec,topic=*",
+      "attr" : [ "OneMinuteRate" ],
+      "resultAlias":"topicBytesInPerSec",
+      "outputWriters" : [ {
+        "@class" : "com.googlecode.jmxtrans.model.output.InfluxDbWriterFactory",
+        "url" : "http://1xx.xx.xx.19:8086/",
+        "username" : "root",
+        "password" : "root",
+        "database" : "kafka_hb",
+        "tags"     : {"application" : "BytesInPerSec"}
+      } ]
+    },
+      {
+        "obj" : "kafka.server:type=BrokerTopicMetrics,name=BytesOutPerSec,topic=*",
+        "attr" : [ "OneMinuteRate" ],
+        "resultAlias":"topicBytesOutPerSec",
+        "outputWriters" : [ {
+          "@class" : "com.googlecode.jmxtrans.model.output.InfluxDbWriterFactory",
+          "url" : "http://1xx.xx.xx.19:8086/",
+          "username" : "root",
+          "password" : "root",
+          "database" : "kafka_hb",
+          "tags"     : {"application" : "BytesOutPerSec"}
+        } ]
+      },
+      {
+        "obj" : "kafka.server:type=BrokerTopicMetrics,name=MessagesInPerSec,topic=*",
+        "attr" : [ "OneMinuteRate" ],
+        "resultAlias":"topicMessagesInPerSec",
+        "outputWriters" : [ {
+          "@class" : "com.googlecode.jmxtrans.model.output.InfluxDbWriterFactory",
+          "url" : "http://1xx.xx.xx.19:8086/",
+          "username" : "root",
+          "password" : "root",
+          "database" : "kafka_hb",
+          "tags"     : {"application" : "MessagesInPerSec"}
+        } ]
+      },
+      {
+        "obj" : "kafka.server:type=BrokerTopicMetrics,name=TotalProduceRequestsPerSec,topic=*",
+        "attr" : [ "OneMinuteRate" ],
+        "resultAlias":"totalProduceRequestsPerSec",
+        "outputWriters" : [ {
+          "@class" : "com.googlecode.jmxtrans.model.output.InfluxDbWriterFactory",
+          "url" : "http://1xx.xx.xx.19:8086/",
+          "username" : "root",
+          "password" : "root",
+          "database" : "kafka_hb",
+          "tags"     : {"application" : "TotalProduceRequestsPerSec"}
+        } ]
+      },
+
+      {
+        "obj" : "kafka.server:type=BrokerTopicMetrics,name=TotalFetchRequestsPerSec,topic=*",
+        "attr" : [ "OneMinuteRate" ],
+        "resultAlias":"totalFetchRequestsPerSec",
+        "outputWriters" : [ {
+          "@class" : "com.googlecode.jmxtrans.model.output.InfluxDbWriterFactory",
+          "url" : "http://1xx.xx.xx.19:8086/",
+          "username" : "root",
+          "password" : "root",
+          "database" : "kafka_hb",
+          "tags"     : {"application" : "TotalFetchRequestsPerSec"}
+        } ]
+      },
+      {
+        "obj" : "kafka.log:type=Log,name=LogEndOffset,topic=*,partition=*",
+        "attr" : [ "Value" ],
+        "resultAlias":"topicLogEndOffset",
+        "outputWriters" : [ {
+          "@class" : "com.googlecode.jmxtrans.model.output.InfluxDbWriterFactory",
+          "url" : "http://1xx.xx.xx.19:8086/",
+          "username" : "root",
+          "password" : "root",
+          "database" : "kafka_hb",
+          "tags"     : {"application" : "LogEndOffset"}
+        } ]
+      },
+      {
+        "obj" : "kafka.log:type=Log,name=Size,topic=*,partition=*",
+        "attr" : [ "Value" ],
+        "resultAlias":"topicPartitionSize",
+        "outputWriters" : [ {
+          "@class" : "com.googlecode.jmxtrans.model.output.InfluxDbWriterFactory",
+          "url" : "http://1xx.xx.xx.19:8086/",
+          "username" : "root",
+          "password" : "root",
+          "database" : "kafka_hb",
+          "tags"     : {"application" : "Size"}
+        } ]
+      }
+    ]
+  } ]
+}
