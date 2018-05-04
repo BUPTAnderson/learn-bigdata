@@ -1,0 +1,9 @@
+package protobuf;
+option java_package = "org.learning.protobufrpc.proto";
+option java_outer_classname = "UserProto";
+option java_generic_services = true;
+import "User.proto";
+
+service UserService {
+    rpc getUser (User) returns (User);
+}

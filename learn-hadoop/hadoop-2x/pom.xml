@@ -16,6 +16,8 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <air.main.basedir>${project.parent.basedir}/..</air.main.basedir>
+        <!-- 该module里面包含thrift编译生成的代码, 很多不符合我们的checkstyle, 这里对test-thrift module不再进行checkstyle -->
+        <air.check.skip-checkstyle>true</air.check.skip-checkstyle>
     </properties>
 
     <dependencies>

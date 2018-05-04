@@ -1,0 +1,9 @@
+option java_package = "org.learning.protobufrpc.proto";
+option java_outer_classname = "UserProtos";
+option java_generic_services = true;
+
+message User {
+    required string name = 1;
+    required int32 id = 2;
+    optional string email = 3;
+}
