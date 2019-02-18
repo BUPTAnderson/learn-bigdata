@@ -35,14 +35,16 @@ public class CheckExists {
 
         client.start();
 
-        // Stat s = client.checkExists().forPath("/jike");
+//         Stat s = client.checkExists().forPath("/jike");
 
+//        System.out.println(s);
         client.checkExists().inBackground(new BackgroundCallback() {
             public void processResult(CuratorFramework arg0, CuratorEvent arg1)
                     throws Exception {
                 Stat stat = arg1.getStat();
                 System.out.println(stat);
                 System.out.println(arg1.getContext());
+                System.out.println(String.format("eventType:%s,resultCode:%s", arg1.getType(), arg1.getResultCode()));
             }
         }, "123", es).forPath("/jike");
 

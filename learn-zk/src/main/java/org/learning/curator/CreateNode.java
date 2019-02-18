@@ -5,8 +5,8 @@ import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.retry.RetryUntilElapsed;
 import org.apache.zookeeper.CreateMode;
-
-import java.nio.charset.Charset;
+import org.apache.zookeeper.KeeperException;
+import org.apache.zookeeper.data.Stat;
 
 /**
  * Created by Anderson on 2018/9/13
@@ -30,12 +30,23 @@ public class CreateNode {
 
         client.start();
 
-        String path = client.create()
-                .creatingParentsIfNeeded()
-                .withMode(CreateMode.EPHEMERAL)
-//                .forPath("/jike/aa","123".getBytes());
-                .forPath("/jike/bb", "192.168.178.1".getBytes(Charset.forName("UTF-8")));
+//        String path = client.create()
+//                .creatingParentsIfNeeded()
+//                .withMode(CreateMode.EPHEMERAL)
+////                .forPath("/jike/aa","123".getBytes());
+//                .forPath("/jike/bb", "192.168.178.1".getBytes(Charset.forName("UTF-8")));
 
+        Stat stat = client.checkExists().forPath("/jike");
+        if (stat != null) {
+            System.out.println("exists");
+        }
+        String path = null;
+        try {
+            path = client.create().creatingParentsIfNeeded().withMode(CreateMode.PERSISTENT).forPath("/jike");
+        } catch (KeeperException e) {
+            System.out.println(e.code() == KeeperException.Code.NODEEXISTS);
+//            e.printStackTrace();
+        }
         System.out.println(path);
 
         Thread.sleep(Integer.MAX_VALUE);
